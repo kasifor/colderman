@@ -20,7 +20,7 @@
 #define STARTUP_DELAY 2
 #define FAN_SPEED_STEPS 3
 
-// Hata kodları
+// Hata Kodları
 typedef enum {
     SUCCESS = 0,
     ERROR_INVALID_INPUT = -1,
@@ -31,6 +31,7 @@ typedef struct {
     float current_temp;
     int fan_speed;
     bool is_cooling;
+    bool energy_saving_mode;
 } CoolerState;
 
 // Yardımcı Fonksiyonlar
@@ -61,7 +62,7 @@ void printHeader(void) {
     printf(ANSI_COLOR_BLUE
            "================================\n"
            "=         TELEFON SOĞUTUCU    =\n"
-           "=          ISH Shell v2.0     =\n"
+           "=          ISH Shell v3.0     =\n"
            "================================\n"
            ANSI_COLOR_RESET);
 }
@@ -139,12 +140,14 @@ void energySavingMode(CoolerState *state) {
     if (!state) return;
 
     printf(ANSI_COLOR_YELLOW "Enerji Tasarrufu Modu etkinleştirildi.\n" ANSI_COLOR_RESET);
+    state->energy_saving_mode = true;
     while (state->current_temp < CRITICAL_TEMP) {
         printf("Sıcaklık kritik seviyeye ulaşmadığı için bekleniyor...\n");
         sleep(5);
         state->current_temp = simulateTemperature();
     }
 
+    state->energy_saving_mode = false;
     printf(ANSI_COLOR_GREEN "Kritik sıcaklık algılandı, soğutma başlatılıyor...\n" ANSI_COLOR_RESET);
     startCooling(state);
 }
